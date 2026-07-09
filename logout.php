@@ -1,1 +1,1 @@
-<?php require_once __DIR__.'/app/auth.php'; logout();
+<?php require __DIR__.'/app/bootstrap.php'; session_destroy(); header('Location: login.php');

@@ -1,0 +1,15 @@
+<?php require __DIR__.'/app/bootstrap.php'; require __DIR__.'/app/layout.php'; require_login();
+$stages=['Nuevo','Contactado','Medición','Cotización','Negociación','Anticipo','Producción','Instalación','Entregado','Perdido'];
+$products=['Cocina integral','Closet','Puerta intercomunicación','Recepción comercial','Barra para eventos','Barra para snacks','Mueble TV','Otro'];
+if(isset($_GET['move'])){ $pdo->prepare('UPDATE leads SET stage=? WHERE id=?')->execute([$_GET['stage'],$_GET['move']]); flash('Prospecto actualizado'); header('Location: leads.php'); exit; }
+if($_SERVER['REQUEST_METHOD']==='POST'){
+  $pdo->prepare('INSERT INTO leads(client_name,phone,product,stage,amount,source,next_followup,notes) VALUES(?,?,?,?,?,?,?,?)')->execute([$_POST['client_name'],$_POST['phone'],$_POST['product'],$_POST['stage'],$_POST['amount'],$_POST['source'],$_POST['next_followup'],$_POST['notes']]);
+  $leadId=$pdo->lastInsertId();
+  if(!empty($_POST['next_followup'])) $pdo->prepare('INSERT INTO activities(lead_id,title,activity_date,type,notes) VALUES(?,?,?,?,?)')->execute([$leadId,'Seguimiento: '.$_POST['client_name'],$_POST['next_followup'],'Seguimiento',$_POST['notes']]);
+  flash('Prospecto guardado'); header('Location: leads.php'); exit;
+}
+$leads=$pdo->query('SELECT * FROM leads ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC);
+layout_header('Prospectos'); ?>
+<div class="panel"><h3>Nuevo prospecto</h3><form method="post" class="form"><div><label>Cliente</label><input name="client_name" required></div><div><label>WhatsApp</label><input name="phone" required></div><div><label>Producto</label><select name="product"><?php foreach($products as $p): ?><option><?=$p?></option><?php endforeach; ?></select></div><div><label>Etapa</label><select name="stage"><?php foreach($stages as $s): ?><option><?=$s?></option><?php endforeach; ?></select></div><div><label>Monto estimado</label><input type="number" step="0.01" name="amount" value="0"></div><div><label>Fuente</label><input name="source" value="Facebook Ads"></div><div><label>Próximo seguimiento</label><input type="date" name="next_followup"></div><div class="full"><label>Notas</label><textarea name="notes"></textarea></div><div><button>Guardar prospecto</button></div></form></div>
+<div class="panel" style="margin-top:18px"><table><tr><th>Cliente</th><th>Producto</th><th>Etapa</th><th>Monto</th><th>Mover</th><th>Acción</th></tr><?php foreach($leads as $l): ?><tr><td><?=e($l['client_name'])?><br><small><?=e($l['phone'])?></small></td><td><?=e($l['product'])?></td><td><span class="pill"><?=e($l['stage'])?></span></td><td><?=money($l['amount'])?></td><td><select onchange="location.href='leads.php?move=<?=$l['id']?>&stage='+encodeURIComponent(this.value)"><?php foreach($stages as $s): ?><option <?=$s==$l['stage']?'selected':''?>><?=$s?></option><?php endforeach; ?></select></td><td><a class="wa" target="_blank" href="https://wa.me/52<?=preg_replace('/\D/','',$l['phone'])?>">WhatsApp</a></td></tr><?php endforeach; ?></table></div>
+<?php layout_footer(); ?>
