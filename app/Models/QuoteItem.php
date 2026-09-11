@@ -20,4 +20,11 @@ class QuoteItem extends Model
     }
 
     public function quote(): BelongsTo { return $this->belongsTo(Quote::class); }
+
+    protected static function booted(): void
+    {
+        static::saving(function (QuoteItem $item): void {
+            $item->amount = round((float) $item->quantity * (float) $item->unit_price, 2);
+        });
+    }
 }

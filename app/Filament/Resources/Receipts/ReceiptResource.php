@@ -15,38 +15,20 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ReceiptResource extends Resource
 {
     protected static ?string $model = Receipt::class;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+    protected static ?string $recordTitleAttribute = 'folio';
+    protected static ?string $navigationLabel = 'Recibos';
+    protected static ?string $modelLabel = 'recibo';
+    protected static ?string $pluralModelLabel = 'recibos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    protected static ?string $recordTitleAttribute = 'id';
-
-    public static function form(Schema $schema): Schema
-    {
-        return ReceiptForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return ReceiptInfolist::configure($schema);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return ReceiptsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
+    public static function form(Schema $schema): Schema { return ReceiptForm::configure($schema); }
+    public static function infolist(Schema $schema): Schema { return ReceiptInfolist::configure($schema); }
+    public static function table(Table $table): Table { return ReceiptsTable::configure($table); }
+    public static function getRelations(): array { return []; }
 
     public static function getPages(): array
     {
@@ -56,13 +38,5 @@ class ReceiptResource extends Resource
             'view' => ViewReceipt::route('/{record}'),
             'edit' => EditReceipt::route('/{record}/edit'),
         ];
-    }
-
-    public static function getRecordRouteBindingEloquentQuery(): Builder
-    {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }
