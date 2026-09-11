@@ -15,38 +15,20 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LeadResource extends Resource
 {
     protected static ?string $model = Lead::class;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserPlus;
+    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $navigationLabel = 'Prospectos';
+    protected static ?string $modelLabel = 'prospecto';
+    protected static ?string $pluralModelLabel = 'prospectos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    protected static ?string $recordTitleAttribute = 'php artisan make:filament-resource Quote';
-
-    public static function form(Schema $schema): Schema
-    {
-        return LeadForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return LeadInfolist::configure($schema);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return LeadsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
+    public static function form(Schema $schema): Schema { return LeadForm::configure($schema); }
+    public static function infolist(Schema $schema): Schema { return LeadInfolist::configure($schema); }
+    public static function table(Table $table): Table { return LeadsTable::configure($table); }
+    public static function getRelations(): array { return []; }
 
     public static function getPages(): array
     {
@@ -56,13 +38,5 @@ class LeadResource extends Resource
             'view' => ViewLead::route('/{record}'),
             'edit' => EditLead::route('/{record}/edit'),
         ];
-    }
-
-    public static function getRecordRouteBindingEloquentQuery(): Builder
-    {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }
